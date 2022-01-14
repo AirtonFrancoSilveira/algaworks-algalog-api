@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.algaworks.algalog.domain.model.Cliente;
 import com.algaworks.algalog.domain.repository.ClienteRepository;
+import com.algaworks.algalog.domain.service.CatalogoClienteService;
 
 import lombok.AllArgsConstructor;
 
@@ -27,6 +28,7 @@ import lombok.AllArgsConstructor;
 public class ClienteController {
 	
 	private ClienteRepository clienteRepository;
+	private CatalogoClienteService catalogoClienteService;
 
 	@GetMapping
 	public List<Cliente> listar() {
@@ -37,25 +39,14 @@ public class ClienteController {
 	@GetMapping("/{clienteId}")
 	public ResponseEntity<Cliente> buscar(@PathVariable Long clienteId) {
 		return clienteRepository.findById(clienteId)
-//				.map(cliente -> ResponseEntity.ok(cliente))
 				.map(ResponseEntity::ok)
-				.orElse(ResponseEntity.notFound().build());
-		
-		
-		//		Optional<Cliente> cliente = clienteRepository.findById(clienteId);
-//		
-//		if(cliente.isPresent()) {
-//			return ResponseEntity.ok(cliente.get());
-//		}
-//		
-//		return ResponseEntity.notFound().build();
-//	
+				.orElse(ResponseEntity.notFound().build());	
 	}
 	
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
 	public Cliente adcionar(@Valid @RequestBody Cliente cliente) {
-		return clienteRepository.save(cliente);
+		return catalogoClienteService.salvar(cliente);
 	}
 	
 	@PutMapping("/{clienteId}")
@@ -65,8 +56,7 @@ public class ClienteController {
 			return ResponseEntity.notFound().build();
 		}
 			cliente.setId(clienteId);
-			cliente = clienteRepository.save(cliente);
-			
+			cliente = catalogoClienteService.salvar(cliente);
 			return ResponseEntity.ok(cliente);
 	}
 	
@@ -76,8 +66,7 @@ public class ClienteController {
 			return ResponseEntity.notFound().build();
 		}
 		
-		clienteRepository.deleteById(clienteId);
-		
+		catalogoClienteService.excluir(clienteId);
 		return ResponseEntity.noContent().build();
 	}
 }
